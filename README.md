@@ -47,6 +47,6 @@ async def _(client, message):
 # Credit
 Thanks for;
 
-[Akın](https://github.com/TeamDerUntergang/Telegram-UserBot)
+[Akın](https://github.com/AkinYoungSoftware)
 
 [Dan](https://telegram.dog/haskell) [Pyrogram Library](https://github.com/pyrogram/pyrogram) Kütüphanesi için
