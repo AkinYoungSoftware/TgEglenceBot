@@ -13,6 +13,9 @@
     },
     "OWNER_API_HASH": {
       "description": "API_HASH'iniz https://my.telegram.org/apps dan ala bilirsiniz"
+    },
+    "OWNER_ID": {
+      "description": "Botunuzda Yetmili Olmasini Istediginiz Kisilerin Idleri"
     }
    },
    "buildpacks": [
