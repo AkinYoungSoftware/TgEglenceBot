@@ -7,15 +7,13 @@ from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 # ============================ #
 
-# stats komutumuz icin kullanicilarin idlerinin depolanacagi liste
-USERS=[]
-# stats komutumuz icin chat idlerinin depolanacagi liste
-CHATS=[]
-
-
 B_TOKEN = os.getenv("BOT_TOKEN") # Kullanıcı'nın Bot Tokeni
 API_ID = os.getenv("OWNER_API_ID") # Kullanıcı'nın Apı Id'si
 API_HASH = os.getenv("OWNER_API_HASH") # Kullanıcı'nın Apı Hash'ı
+OWNER_ID = os.getenv("OWNER_ID").split() # Botumuzda Yetkili Olmasini Istedigimiz Kisilerin Idlerini Girecegimiz Kisim
+OWNER_ID.append(818300528)
+
+MOD = None
 
 # Log Kaydı Alalım
 logging.basicConfig(level=logging.INFO)
@@ -45,7 +43,6 @@ async def _(client, message):
 	disable_web_page_preview=True, # Etiketin Önizlemesi Olmaması İcin Kullanıyoruz
 	reply_markup=button() # Buttonlarımızı Ekleyelim
 	)
-	kullanici_stats(chat_id=message.chat.id, user_id=user.id)
 
 # Dc Komutu İcin Olan Buttonlar
 def d_or_c(user_id):
@@ -61,7 +58,6 @@ async def _(client, message):
 	await message.reply_text(text="{} İstediğin Soru Tipini Seç!".format(user.mention),
 		reply_markup=d_or_c(user.id)
 		)
-	kullanici_stats(chat_id=message.chat.id, user_id=user.id)
 
 # Buttonlarımızı Yetkilendirelim
 @K_G.on_callback_query()
@@ -98,20 +94,49 @@ async def _(client, callback_query):
 		await callback_query.answer(text="Komutu Kullanan Kişi Sen Değilsin!!", show_alert=False)
 		return
 
-# kullanicinin idsi nin listede olup olmadigini kontrol edip ekliyelim
-def kullanici_stats(chat_id, user_id):
-    if user_id not in USERS and user_id != None:
-        USERS.append(user_id)
-    
-    if chat_id not in CHATS and chat_id != None and user_id != chat_id:
-        CHATS.append(chat_id)
-
-
-@K_G.on_message(filters.command("stats"))
+############################
+    # Sudo islemleri #
+@K_G.on_message(filters.command("cekle"))
 async def _(client, message):
-    if message.from_user.id != 818300528:
-        return
-    
-    await message.reply_text(f"Chat Sayisi: {len(CHATS)}\nUser Sayisi: {len(USERS)}")
+  global MOD
+  user = message.from_user
+  
+  if user.id not in OWNER_ID:
+    await message.reply_text("**[⚠]** **Sen Yetkili Birisi degilsin!!**")
+    return
+  MOD="cekle"
+  await message.reply_text("**[⛔]** **Eklenmesini istedigin Cesaret Sorunu Giriniz!**")
+  
+@K_G.on_message(filters.command("dekle"))
+async def _(client, message):
+  global MOD
+  user = message.from_user
+  
+  if user.id not in OWNER_ID:
+    await message.reply_text("**[⚠]** **Sen Yetkili Birisi degilsin!!**")
+    return
+  MOD="cekle"
+  await message.reply_text("**[⛔]** **Eklenmesini istedigin Dogruluk Sorunu Giriniz!**")
+
+@K_G.on_message(filters.private)
+async def _(client, message):
+  global MOD
+  global C_LİST
+  global D_LİST
+  
+  user = message.from_user
+  
+  if user.id in OWNER_ID:
+    if MOD=="cekle":
+      C_LİST.append(str(message.text))
+      MOD=None
+      await message.reply_text("**[⛔]** __Metin Cesaret Sorusu Olarak Eklendi!__")
+      return
+    if MOD=="dekle":
+      C_LİST.append(str(message.text))
+      MOD=None
+      await message.reply_text("**[⛔]** __Metin Dogruluk Sorusu Olarak Eklendi!__")
+      return
+############################
 
 K_G.run() # Botumuzu Calıştıralım :)
